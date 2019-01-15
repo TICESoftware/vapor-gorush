@@ -1,0 +1,39 @@
+//
+//  GorushNotification.swift
+//  Gorush
+//
+//  Created by Simon Kempendorf on 15.01.19.
+//
+
+import Foundation
+import Vapor
+
+public final class Gorush: Service {
+    let httpScheme: HTTPScheme
+    let hostname: String
+    let url: String
+    let port: Int?
+
+    public init(httpScheme: HTTPScheme = .https, hostname: String, port: Int? = nil, url: String = "/api/push") {
+        self.httpScheme = httpScheme
+        self.hostname = hostname
+        self.port = port
+        self.url = url
+    }
+
+    public func dispatch(_ gorushMessage: GorushMessage, on worker: Worker) -> Future<HTTPResponse> {
+        return HTTPClient.connect(scheme: httpScheme, hostname: hostname, port: port, on: worker).flatMap { client in
+            let headers = [("Content-Type", "application/json")]
+            let body = try JSONEncoder().encode(gorushMessage)
+            let request = HTTPRequest(method: .POST, url: self.url, headers: HTTPHeaders(headers), body: body)
+
+            return client.send(request)
+        }
+    }
+
+    // MARK: Convenience method
+
+    public func dispatch(_ gorushNotification: GorushNotification, on worker: Worker) -> Future<HTTPResponse> {
+        return dispatch(GorushMessage(notifications: [gorushNotification]), on: worker)
+    }
+}
