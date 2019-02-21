@@ -21,19 +21,21 @@ public final class Gorush: Service {
         self.url = url
     }
 
-    public func dispatch(_ gorushMessage: GorushMessage, on worker: Worker) -> Future<HTTPResponse> {
+    public func dispatch(_ gorushMessage: GorushMessage, on worker: Worker) -> Future<GorushResponse> {
         return HTTPClient.connect(scheme: httpScheme, hostname: hostname, port: port, on: worker).flatMap { client in
             let headers = [("Content-Type", "application/json")]
             let body = try JSONEncoder().encode(gorushMessage)
             let request = HTTPRequest(method: .POST, url: self.url, headers: HTTPHeaders(headers), body: body)
 
-            return client.send(request)
+            return client.send(request).map { response in
+                return try JSONDecoder().decode(GorushResponse.self, from: response.body.data!)
+            }
         }
     }
 
     // MARK: Convenience method
 
-    public func dispatch(_ gorushNotification: GorushNotification, on worker: Worker) -> Future<HTTPResponse> {
+    public func dispatch(_ gorushNotification: GorushNotification, on worker: Worker) -> Future<GorushResponse> {
         return dispatch(GorushMessage(notifications: [gorushNotification]), on: worker)
     }
 }
