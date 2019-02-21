@@ -5,7 +5,7 @@ This service allows to easily integrate [Gorush](https://github.com/appleboy/gor
 ## Installation
 ### Add the package to the `Package.swift`
 ```swift
-.package(url: "https://github.com/code28/vapor-gorush.git", from: "0.1.0")
+.package(url: "https://github.com/code28/vapor-gorush.git", from: "0.2.1")
 // ...
 .target(name: "App", dependencies: ["Vapor", "Gorush"])
 ```
@@ -25,7 +25,11 @@ import Gorush
 let notification = GorushNotification(tokens: ["deviceToken"], platform: .ios, message: "Push message", title: "Push title")
 
 let gorush = container.make(Gorush.self)
-gorush.dispatch(notification, on: worker)
+gorush.dispatch(notification, on: worker).map { (response: GorushResponse) in
+    if response.logs.count > 0 {
+        // This means an error occurred, if Gorush was configured to return errors
+    }
+}
 // ...
 ```
 
