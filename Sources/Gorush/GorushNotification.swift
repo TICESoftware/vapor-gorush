@@ -28,6 +28,7 @@ public struct GorushNotification: Encodable {
 
     let tokens: [String]
     let platform: Platform
+    let topic: String
 
     let message: String
     let title: String?
@@ -36,9 +37,10 @@ public struct GorushNotification: Encodable {
     let data: AnyEncodable?
     let content_available: Bool?
 
-    public init(tokens: [String], platform: GorushNotification.Platform, message: String, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil) {
+    public init(tokens: [String], platform: GorushNotification.Platform, message: String, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "") {
         self.tokens = tokens
         self.platform = platform
+        self.topic = topic
         self.message = message
         self.title = title
         self.alert = alert
