@@ -36,14 +36,14 @@ public struct GorushNotification: Encodable {
     let topic: String
     let push_type: PushType?
 
-    let message: String
+    let message: String?
     let title: String?
     let alert: iosAlertPayload?
 
     let data: AnyEncodable?
     let content_available: Bool?
 
-    public init(tokens: [String], platform: GorushNotification.Platform, message: String, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil) {
+    public init(tokens: [String], platform: GorushNotification.Platform, message: String?, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil) {
         self.tokens = tokens
         self.platform = platform
         self.topic = topic
