@@ -3,7 +3,7 @@ import XCTest
 
 final class GorushTests: XCTestCase {
     func testExample() {
-        XCTAssertEqual(Gorush().text, "Hello, World!")
+        
     }
 
     static var allTests = [

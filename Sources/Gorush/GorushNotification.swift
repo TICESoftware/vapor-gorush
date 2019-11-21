@@ -31,10 +31,16 @@ public struct GorushNotification: Encodable {
         case background
     }
 
+    public enum Priority: String, Content {
+        case normal
+        case high
+    }
+
     let tokens: [String]
     let platform: Platform
     let topic: String
     let push_type: PushType?
+    let priority: Priority?
 
     let message: String?
     let title: String?
@@ -43,11 +49,12 @@ public struct GorushNotification: Encodable {
     let data: AnyEncodable?
     let content_available: Bool?
 
-    public init(tokens: [String], platform: GorushNotification.Platform, message: String?, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil) {
+    public init(tokens: [String], platform: GorushNotification.Platform, message: String?, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil, priority: Priority? = nil) {
         self.tokens = tokens
         self.platform = platform
         self.topic = topic
         self.push_type = pushType
+        self.priority = priority
         self.message = message
         self.title = title
         self.alert = alert
