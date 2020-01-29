@@ -21,6 +21,14 @@ public struct GorushNotification: Encodable {
         }
     }
 
+    public struct iosSound: Content {
+        let name: String
+
+        public init(name: String) {
+            self.name = name
+        }
+    }
+
     public enum Platform: Int, Content {
         case ios = 1
         case android = 2
@@ -45,12 +53,13 @@ public struct GorushNotification: Encodable {
     let message: String?
     let title: String?
     let alert: iosAlertPayload?
+    let sound: iosSound?
 
     let data: AnyEncodable?
     let content_available: Bool?
     let mutable_content: Bool?
 
-    public init(tokens: [String], platform: GorushNotification.Platform, message: String?, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil, priority: Priority? = nil, mutable_content: Bool? = nil) {
+    public init(tokens: [String], platform: GorushNotification.Platform, message: String?, title: String? = nil, alert: GorushNotification.iosAlertPayload? = nil, sound: GorushNotification.iosSound? = nil, data: Encodable? = nil, content_available: Bool? = nil, topic: String = "", pushType: PushType? = nil, priority: Priority? = nil, mutable_content: Bool? = nil) {
         self.tokens = tokens
         self.platform = platform
         self.topic = topic
@@ -64,6 +73,7 @@ public struct GorushNotification: Encodable {
         } else {
             self.data = nil
         }
+        self.sound = sound
         self.content_available = content_available
         self.mutable_content = mutable_content
     }
