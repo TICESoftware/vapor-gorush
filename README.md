@@ -5,17 +5,17 @@ This service allows to easily integrate [Gorush](https://github.com/appleboy/gor
 ## Installation
 ### Add the package to the `Package.swift`
 ```swift
-.package(url: "https://github.com/code28/vapor-gorush.git", from: "0.3.0")
+.package(url: "https://github.com/TICESoftware/vapor-gorush.git", from: "1.0.0")
 // ...
 .target(name: "App", dependencies: ["Vapor", "Gorush"])
 ```
+From version 1.0.0, this uses Vapor 4. If you want to use Gorush in Vapor 3, you can use version 0.9.0.
 
 ### Register Gorush in `configure.swift`
 ```swift
 let hostname = Environment.get("GORUSH_HOSTNAME")
-let port = Environment.get("GORUSH_PORT")
-services.register(Gorush.self) { container in
-    return Gorush(hostname: hostname, port: port)
+app.gorush.use { req in
+    Gorush(client: req.client, hostname: hostname)
 }
 ```
 Per default, HTTPS will be used. To use HTTP instead, just add `httpScheme: .http` into that initialization.
@@ -26,8 +26,7 @@ import Gorush
 // ...
 let notification = GorushNotification(tokens: ["deviceToken"], platform: .ios, message: "Push message", title: "Push title")
 
-let gorush = container.make(Gorush.self)
-gorush.dispatch(notification, on: worker).map { (response: GorushResponse) in
+req.gorush.dispatch(notification, on: req.eventLoop).map { (response: GorushResponse) in
     if !response.logs.isEmpty {
         // This means an error occurred, if Gorush was configured to return errors
     }

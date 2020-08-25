@@ -8,36 +8,30 @@
 import Foundation
 import Vapor
 
-public final class Gorush: Service {
-    let httpScheme: HTTPScheme
-    let hostname: String
-    let url: String
-    let port: Int?
-    let encoder: DataEncoder
-
-    public init(httpScheme: HTTPScheme = .https, hostname: String, port: Int? = nil, url: String = "/api/push", encoder: DataEncoder = JSONEncoder()) {
-        self.httpScheme = httpScheme
-        self.hostname = hostname
-        self.port = port
-        self.url = url
+public struct Gorush {
+    let client: Client
+    let url: URI
+    let encoder: ContentEncoder
+    
+    public init(client: Client, hostname: String, path: String = "/api/push", encoder: ContentEncoder = JSONEncoder()) {
+        self.client = client
+        let scheme = hostname.hasPrefix("http") ? "" : "https"
+        self.url = URI(string: "\(scheme)\(hostname)\(path)")
         self.encoder = encoder
     }
 
-    public func dispatch(_ gorushMessage: GorushMessage, on worker: Worker) -> Future<GorushResponse> {
-        return HTTPClient.connect(scheme: httpScheme, hostname: hostname, port: port, on: worker).flatMap { client in
-            let headers = [("Content-Type", "application/json")]
-            let body = try self.encoder.encode(gorushMessage)
-            let request = HTTPRequest(method: .POST, url: self.url, headers: HTTPHeaders(headers), body: body)
-
-            return client.send(request).map { response in
-                return try JSONDecoder().decode(GorushResponse.self, from: response.body.data!)
-            }
+    public func dispatch(_ gorushMessage: GorushMessage, on eventLoop: EventLoop) -> EventLoopFuture<GorushResponse> {
+        return client.post(url) { (request: inout ClientRequest) in
+            var body = ByteBuffer()
+            try self.encoder.encode(gorushMessage, to: &body, headers: &request.headers)
+            request.body = body
+        }.flatMapThrowing { (response: ClientResponse) in
+            return try response.content.decode(GorushResponse.self)
         }
     }
 
     // MARK: Convenience method
-
-    public func dispatch(_ gorushNotification: GorushNotification, on worker: Worker) -> Future<GorushResponse> {
-        return dispatch(GorushMessage(notifications: [gorushNotification]), on: worker)
+    public func dispatch(_ gorushNotification: GorushNotification, on eventLoop: EventLoop) -> EventLoopFuture<GorushResponse> {
+        return dispatch(GorushMessage(notifications: [gorushNotification]), on: eventLoop)
     }
 }

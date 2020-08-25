@@ -4,11 +4,14 @@ import PackageDescription
 
 let package = Package(
     name: "Gorush",
+    platforms: [
+        .macOS(.v10_15)
+    ],
     products: [
         .library(name: "Gorush", targets: ["Gorush"])
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0")
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")
     ],
     targets: [
         .target(name: "Gorush", dependencies: ["Vapor"]),
